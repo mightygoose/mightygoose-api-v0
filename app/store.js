@@ -1,6 +1,4 @@
 "use strict"
-const pry = require('pryjs');
-
 //this module becomes a monster.
 //split into db connector, items store and user store
 

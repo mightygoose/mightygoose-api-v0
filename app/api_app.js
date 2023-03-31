@@ -4,7 +4,6 @@ const request = require('koa-request');
 const body_parser = require('koa-body-parser');
 const urllib = require('url');
 const Store = require('./store');
-const pry = require('pryjs');
 
 var app = koa();
 global.store = new Store(); // bad!

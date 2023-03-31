@@ -3,8 +3,6 @@ if (process.env['NODE_ENV'] === 'production') {
   require('newrelic');
 }
 
-const pry = require('pryjs');
-
 //requirements
 const koa = require('koa');
 const route = require('koa-route');

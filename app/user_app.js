@@ -1,5 +1,3 @@
-const pry = require('pryjs');
-
 const koa = require('koa');
 const mount = require('koa-mount');
 const route = require('koa-route');
