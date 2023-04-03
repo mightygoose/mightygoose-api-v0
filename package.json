@@ -28,7 +28,6 @@
     "browser-jsonp": "1.1.5",
     "grant-koa": "3.6.5",
     "horsey": "3.0.0",
-    "jackrabbit": "4.3.0",
     "jsdom": "11.0.0",
     "koa": "1.1.2",
     "koa-body-parser": "1.1.2",

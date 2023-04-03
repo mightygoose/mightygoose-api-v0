@@ -5,7 +5,6 @@
 const request = require('koa-request');
 const _ = require('lodash');
 const log = require('log-colors');
-const jackrabbit = require('jackrabbit');
 const massive = require("massive");
 const url = require('url');
 
@@ -43,20 +42,6 @@ class Store {
     DbClient.then((db) => {
       this.db = db;
     })
-
-    log.info('connecting to queue');
-    this.queue = jackrabbit(RABBITMQ_URL)
-    .on('connected', function() {
-      log.info('connected to queue');
-    })
-    .on('error', function(err) {
-      log.info('queue error: ', err);
-    })
-    .on('disconnected', function() {
-      log.info('disconnected from queue');
-    }).default();
-
-    //var q = this.queue.queue({ name: RABBITMQ_CHANNEL, durable: true });
   }
 
   get_stat(){
@@ -243,17 +228,6 @@ class Store {
     });
   }
 
-  //upload post
-  add_post(item){
-    return new Promise((resolve) => {
-      this.queue
-        .publish(item, { key: RABBITMQ_CHANNEL })
-        .on('drain', () => resolve(true));
-    }).then(() => {
-      log.info(`${item.crawler_name} crawler item #${item.sh_key} added to queue`);
-      return ["in_process", item['badges']];
-    });
-  }
 }
 
 module.exports = Store;

@@ -95,10 +95,4 @@ app.use(route.post('/discogs_info', function *(){
 }));
 
 
-app.use(route.post('/add_post', function *(){
-  var response = yield store.add_post(this.request.body);
-  this.body = JSON.stringify(response);
-}));
-
-
 module.exports = app;
