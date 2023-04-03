@@ -1,4 +1,4 @@
-FROM node:14-slim
+FROM node:19-slim
 
 ENV WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN mkdir /tmp/mongroup && cd /tmp/mongroup && curl -L# https://github.com/jgall
 
 WORKDIR ${WORKDIR}
 COPY package.json /app
-RUN yarn install
+RUN yarn install --ignore-engines
 COPY . .
 
 ENTRYPOINT ["./entrypoint.sh"]
