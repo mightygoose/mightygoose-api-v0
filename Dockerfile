@@ -33,7 +33,7 @@ FROM base AS builder
 WORKDIR ${WORKDIR}
 COPY --from=deps /app/node_modules ./node_modules
 COPY src .
-COPY entrypoint.sh mongroup.conf .
+COPY entrypoint.sh mongroup.conf ./
 
 ENTRYPOINT ["./entrypoint.sh"]
 
