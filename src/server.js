@@ -1,4 +1,4 @@
-const koa = require('koa');
+const Koa = require('koa');
 const route = require('koa-route');
 const compress = require('koa-compress');
 const mount = require('koa-mount');
@@ -6,25 +6,18 @@ const mount = require('koa-mount');
 const api_app = require('./app/api_app');
 const log = require('log-colors');
 
-//code
-var app = koa();
+const app = new Koa();
 
 
 //response time
-app.use(function*(next) {
-  var start = new Date;
-  yield next;
-  var ms = new Date - start;
-  this.set('X-Response-Time', ms + 'ms');
+app.use(async (ctx, next) => {
+  const start = Date.now();
+  await next();
+  const ms = Date.now() - start;
+  console.log(`${ctx.method} ${ctx.url} - ${ms}ms`);
+  ctx.set('X-Response-Time', ms + 'ms');
 });
 
-// logger
-app.use(function*(next) {
-  var start = new Date;
-  yield next;
-  var ms = new Date - start;
-  log.info(`${this.method} ${this.url} - ${ms} ms`);
-});
 
 //compress
 app.use(compress({
