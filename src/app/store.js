@@ -107,6 +107,53 @@ class Store {
     return response;
   }
 
+  async getBestReleases(params) {
+    let tags_str = _.map([].concat(params.tags || []), tag => `"${tag}"`).join(', ')
+    let limit = params.limit || 6;
+    let offset = params.offset || 0;
+    let criteria = (params.tags && params.tags.length) ? `tags @> '[${tags_str}]'::jsonb` : `
+      (discogs->'thumb') IS NOT NULL
+    `;
+    const response = await dbClient.query(`
+        SELECT *
+        FROM items
+        WHERE (discogs -> 'thumb') IS NOT NULL
+                AND discogs -> 'similarity' = '1'
+                AND spotify -> 'similarity' = '1'
+                AND deezer -> 'similarity' = '1'
+                AND(embed::text LIKE '%soundcloud%'
+                        OR embed::text LIKE '%bandcamp%')
+        ORDER BY id DESC
+        LIMIT ${limit}
+        OFFSET ${offset}
+      `);
+    return response;
+  }
+
+  async getSimilarRelease(id) {
+    const response = await dbClient.query(`
+        WITH target_tags AS (
+          SELECT tags AS ttags, title as ttitle, id as tid
+          FROM items
+          WHERE id = ${id}
+        ), result AS (
+          SELECT items.*
+          FROM items, target_tags
+          WHERE id != target_tags.tid
+            AND title != target_tags.ttitle
+            AND tags ?| ARRAY(SELECT jsonb_array_elements_text(target_tags.ttags))
+            AND cardinality (ARRAY (
+                            SELECT jsonb_array_elements_text(target_tags.ttags)
+                            INTERSECT
+                            SELECT jsonb_array_elements_text(tags))) > 2
+        )
+        SELECT *
+        FROM result
+        LIMIT 3
+      `);
+    return response;
+  }
+
 }
 
 module.exports = new Store();

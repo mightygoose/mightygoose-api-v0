@@ -19,9 +19,18 @@ app.use(route.get('/release/:releaseId', async (ctx, releaseId) => {
   ctx.body = await store.getReleaseById(releaseId);
 }));
 
+app.use(route.get('/release/:releaseId/similar', async (ctx, releaseId) => {
+  ctx.body = await store.getSimilarRelease(releaseId);
+}));
+
 app.use(route.post('/releases', async (ctx) => {
   const params = JSON.parse(ctx.request.body);
   ctx.body = await store.getReleases(params);
+}));
+
+app.use(route.post('/releases/best', async (ctx) => {
+  const params = JSON.parse(ctx.request.body);
+  ctx.body = await store.getBestReleases(params);
 }));
 
 app.use(route.get('/search/autocomplete', async (ctx) => {
