@@ -20,18 +20,6 @@ class Store {
     return response[0];
   }
 
-  //@deprecated
-  async getRandom() {
-    const response = await dbClient.query(`
-      SELECT id
-      FROM items
-      WHERE itunes->'similarity' > '0.52' OR deezer->'similarity' > '0.52' OR spotify->'similarity' > '0.52'
-      ORDER BY random()
-      LIMIT 1
-    `);
-    return response;
-  }
-
   async getRandomRelease() {
     const response = await dbClient.query(`
       SELECT id
@@ -41,12 +29,6 @@ class Store {
       LIMIT 1
     `);
     return response[0];
-  }
-
-  //@deprecated
-  async getById(item_id) {
-    const response = await dbClient.query(`select * from items where id=${item_id}`);
-    return response;
   }
 
   async getReleaseById(item_id) {
@@ -64,25 +46,6 @@ class Store {
       });
       return result;
     }, {});
-  }
-
-  //@deprecated
-  async autocompleteSearch(search_query) {
-    const response = await dbClient.query(`
-      SELECT json_build_object(
-          'items', ARRAY(
-            SELECT json_build_object('id', id, 'title',title,'image',images->0)
-            FROM items
-            WHERE lower(title) LIKE '%${search_query.toLowerCase()}%' ORDER BY title
-          ),
-          'tags_count', (
-            SELECT COUNT(id)
-            FROM items
-            WHERE tags @> '["${search_query}"]'::jsonb
-          )
-      ) as object
-    `);
-    return response[0].object;
   }
 
   async getAutocomplete(search_query) {
@@ -106,9 +69,7 @@ class Store {
                           json_build_object('id', id, 'title', title)
                         FROM search_results
           ),
-          'tags_count', (
-                        SELECT
-                          count FROM tags_count)
+          'tags_count', (SELECT count FROM tags_count)
         ) AS object
     `);
     return response[0].object;
@@ -125,27 +86,6 @@ class Store {
       })((error, response) => resolve(response, error));
     });
     return response.body
-  }
-
-  //@deprecated
-  async search(params) {
-    let tags_str = _.map([].concat(params.tags || []), tag => `"${tag}"`).join(', ')
-    let limit = params.limit || 6;
-    let offset = params.offset || 0;
-    let criteria = (params.tags && params.tags.length) ? `tags @> '[${tags_str}]'::jsonb` : `
-      (discogs->'thumb') IS NOT NULL AND
-      (spotify->'similarity' = '1' OR deezer->'similarity' = '1' OR itunes->'similarity' = '1')
-    `;
-    const response = await dbClient.query(`
-        SELECT *
-        FROM items
-        WHERE
-          ${criteria}
-        ORDER BY id DESC
-        LIMIT ${limit}
-        OFFSET ${offset}
-      `);
-    return response;
   }
 
   async getReleases(params) {

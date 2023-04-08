@@ -21,7 +21,7 @@ app.use(route.get('/release/:releaseId', async (ctx, releaseId) => {
 
 app.use(route.post('/releases', async (ctx) => {
   const params = JSON.parse(ctx.request.body);
-  ctx.body = await store.search(params);
+  ctx.body = await store.getReleases(params);
 }));
 
 app.use(route.get('/search/autocomplete', async (ctx) => {
@@ -41,26 +41,8 @@ app.use(route.post('/discogs_info', async (ctx) => {
 }));
 
 //@deprecated
-app.use(route.get('/post/random', async (ctx) => {
-  ctx.body = await store.getRandom();
-}));
-
-//@deprecated
-app.use(route.get('/post/:post_id', async (ctx, post_id) => {
-  const response = await store.getById(post_id);
-  ctx.body = response;
-}));
-
-//@deprecated
 app.use(route.get('/tags', async (ctx) => {
   ctx.body = await store.getTags();
-}));
-
-//@deprecated
-app.use(route.post('/search/posts', async (ctx) => {
-  const params = JSON.parse(ctx.request.body);
-  const response = await store.search(params);
-  ctx.body = response;
 }));
 
 
