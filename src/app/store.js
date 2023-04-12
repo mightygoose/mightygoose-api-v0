@@ -133,7 +133,14 @@ class Store {
   async getSimilarRelease(id) {
     const response = await dbClient.query(`
         WITH target_tags AS (
-          SELECT tags AS ttags, title as ttitle, id as tid
+          SELECT
+            tags AS ttags,
+            title AS ttitle,
+            id AS tid,
+            CASE WHEN jsonb_array_length(tags) > 2 THEN
+                    2
+            ELSE
+                    1 END AS ttags_length
           FROM items
           WHERE id = ${id}
         ), result AS (
@@ -145,7 +152,7 @@ class Store {
             AND cardinality (ARRAY (
                             SELECT jsonb_array_elements_text(target_tags.ttags)
                             INTERSECT
-                            SELECT jsonb_array_elements_text(tags))) > 2
+                            SELECT jsonb_array_elements_text(tags))) > ttags_length
         )
         SELECT *
         FROM result
