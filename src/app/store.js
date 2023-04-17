@@ -16,8 +16,18 @@ if (process.env['NODE_ENV'] !== 'production') {
 class Store {
 
   async getStat() {
-    const response = await dbClient.query(`select count(id) from items`);
-    return response[0];
+    const response = await dbClient.query(`
+      WITH tags AS (
+	SELECT DISTINCT jsonb_array_elements_text(tags)
+	FROM items
+      )
+      SELECT json_build_object(
+              'total_releases', (SELECT count(title) FROM items),
+              'unique_releases', (SELECT count(DISTINCT title) FROM items),
+              'unique_tags', (SELECT count(*) FROM tags)
+      ) AS object
+    `);
+    return response[0].object;
   }
 
   async getRandomRelease() {
