@@ -49,9 +49,9 @@ app.use(route.post('/discogs_info', async (ctx) => {
   ctx.body = response;
 }));
 
-//@deprecated
 app.use(route.get('/tags', async (ctx) => {
-  ctx.body = await store.getTags();
+  const { limit, offset } = ctx.query;
+  ctx.body = await store.getTags({ limit, offset });
 }));
 
 

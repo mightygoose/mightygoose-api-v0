@@ -36,16 +36,20 @@ class Store {
     return response[0];
   }
 
-  //@deprecated
-  async getTags() {
-    const response = await dbClient.query(`select tags from items`);
-    return _.reduce(response, (result, item) => {
-      _.each(item['tags'], (value) => {
-        result[value] = result[value] || 0;
-        result[value]++;
-      });
-      return result;
-    }, {});
+  async getTags({ limit = 10, offset = 0 }) {
+    const response = await dbClient.query(`
+      WITH tags AS (
+	SELECT jsonb_array_elements_text(tags) AS tag
+	FROM items
+      )
+      SELECT tag, count(tag) as count
+      FROM tags
+      GROUP BY tag
+      ORDER BY count DESC
+      LIMIT ${limit}
+      OFFSET ${offset}
+      `);
+    return response;
   }
 
   async getAutocomplete(search_query) {
