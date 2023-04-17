@@ -33,6 +33,11 @@ app.use(route.post('/releases/best', async (ctx) => {
   ctx.body = await store.getBestReleases(params);
 }));
 
+app.use(route.get('/releases_short', async (ctx) => {
+  const { limit, offset } = ctx.query;
+  ctx.body = await store.getReleasesShort({ limit, offset });
+}));
+
 app.use(route.get('/search/autocomplete', async (ctx) => {
   const query = ctx.query.q;
   if (!query || query.length < 3) {

@@ -175,6 +175,22 @@ class Store {
     return response;
   }
 
+  async getReleasesShort({ limit = 10, offset = 0 }) {
+    const response = await dbClient.query(`
+      WITH results AS (
+	SELECT DISTINCT ON (title) title, id
+	FROM items
+      )
+      SELECT *
+      FROM results
+      ORDER BY id
+      LIMIT ${limit}
+      OFFSET ${offset}
+    `);
+    return response;
+  }
+
+
 }
 
 module.exports = new Store();
