@@ -42,7 +42,40 @@ class Store {
   }
 
   async getReleaseById(item_id) {
-    const response = await dbClient.query(`select * from items where id=${item_id}`);
+    const response = await dbClient.query(`
+      WITH release AS (
+	SELECT *
+	FROM items
+	WHERE id = ${item_id}
+      ),
+      target_tags AS (
+        SELECT tags AS ttags,
+               title AS ttitle,
+               id AS tid,
+               CASE WHEN jsonb_array_length(tags) > 3
+                 THEN 3
+                 ELSE 1
+               END AS ttags_length
+        FROM release
+      ),
+      similar_releases AS (
+              SELECT items.*
+              FROM items, target_tags
+              WHERE id != target_tags.tid
+                    AND title != target_tags.ttitle
+                    AND tags ?| ARRAY (SELECT jsonb_array_elements_text(target_tags.ttags))
+                    AND cardinality (ARRAY (
+                        SELECT jsonb_array_elements_text(target_tags.ttags)
+                        INTERSECT
+                        SELECT jsonb_array_elements_text(tags)
+                    )) >= ttags_length
+                    LIMIT 3
+      )
+      SELECT *, (
+        SELECT json_agg(row_to_json(similar_releases)
+      ) AS similar_releases FROM similar_releases)
+      FROM release;
+    `);
     return response[0];
   }
 
